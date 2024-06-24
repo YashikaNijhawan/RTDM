@@ -5,6 +5,7 @@ document.getElementById('refreshButton').addEventListener('click', handleRefresh
 let metricsData = null;
 let videoFile = null;
 let chart = null;
+let translations = null;
 
 async function handleMetricsFileSelect(event) {
     const file = event.target.files[0];
@@ -15,8 +16,10 @@ async function handleMetricsFileSelect(event) {
     reader.onload = async function(event) {
         const textContent = event.target.result;
         metricsData = parseMetricsData(textContent);
+        translations = parseTranslationsAndTimestamps(textContent);
         initializeVideoPlayer();
         createChart(metricsData);
+        updateTranslationsDisplay(translations);
     };
 
     reader.readAsText(file);
@@ -30,9 +33,11 @@ function handleVideoFileSelect(event) {
 function handleRefreshButtonClick() {
     metricsData = null;
     videoFile = null;
+    translations = null;
     document.getElementById('fileInput').value = '';
     document.getElementById('videoFileInput').value = '';
     document.getElementById('metricsDisplay').innerHTML = '';
+    document.getElementById('translationsDisplay').innerHTML = '';
     const videoPlayer = document.getElementById('videoPlayer');
     videoPlayer.pause();
     videoPlayer.src = '';
@@ -113,6 +118,33 @@ function findTimestamp(metrics, currentTime) {
         }
     }
     return null;
+}
+
+function parseTranslationsAndTimestamps(textContent) {
+    const lines = textContent.split('\n');
+    const items = [];
+
+    for (const line of lines) {
+        if (line.includes('RECOGNIZED:') || line.includes('[RTDM][Timestamps]')) {
+            items.push(line.trim());
+        }
+    }
+
+    return items;
+}
+
+function updateTranslationsDisplay(items) {
+    const translationsDisplay = document.getElementById('translationsDisplay');
+    translationsDisplay.innerHTML = '';
+
+    const ul = document.createElement('ul');
+    items.forEach(item => {
+        const li = document.createElement('li');
+        li.textContent = item;
+        ul.appendChild(li);
+    });
+
+    translationsDisplay.appendChild(ul);
 }
 
 function createChart(metricsData) {
