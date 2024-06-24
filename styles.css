@@ -73,16 +73,6 @@ label:hover {
     max-height: 400px;
 }
 
-/* Translations display styling */
-.translations-display {
-    margin-top: 20px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    text-align: left;
-}
-
 /* Timestamp data styling */
 .timestamp-data {
     margin-bottom: 20px;
