@@ -5,7 +5,6 @@ document.getElementById('refreshButton').addEventListener('click', handleRefresh
 let metricsData = null;
 let videoFile = null;
 let chart = null;
-let translations = null;
 
 async function handleMetricsFileSelect(event) {
     const file = event.target.files[0];
@@ -16,10 +15,8 @@ async function handleMetricsFileSelect(event) {
     reader.onload = async function(event) {
         const textContent = event.target.result;
         metricsData = parseMetricsData(textContent);
-        translations = parseTranslationsAndTimestamps(textContent);
         initializeVideoPlayer();
         createChart(metricsData);
-        updateTranslationsDisplay(translations);
     };
 
     reader.readAsText(file);
@@ -61,6 +58,7 @@ function initializeVideoPlayer() {
 function parseMetricsData(textContent) {
     const lines = textContent.split('\n');
     const metrics = [];
+    const translations = [];
     let currentMetrics = null;
 
     for (const line of lines) {
@@ -69,7 +67,7 @@ function parseMetricsData(textContent) {
             if (matches) {
                 const startSec = parseFloat(matches[1]);
                 const endSec = parseFloat(matches[2]);
-                currentMetrics = { startSec, endSec, metrics: [] };
+                currentMetrics = { startSec, endSec, metrics: []};
                 metrics.push(currentMetrics);
             }
         } else if (currentMetrics) {
@@ -78,12 +76,12 @@ function parseMetricsData(textContent) {
                 line.includes('Background_Noise Score') ||
                 line.includes('Speaker_Level Score') ||
                 line.includes('Isochrony Score') ||
-                line.includes('RT_Metric Score')) {
+                line.includes('RT_Metric Score')||
+                line.includes('RECOGNIZED:')) {
                 currentMetrics.metrics.push(line.trim());
             }
         }
     }
-
     return metrics;
 }
 
@@ -120,32 +118,7 @@ function findTimestamp(metrics, currentTime) {
     return null;
 }
 
-function parseTranslationsAndTimestamps(textContent) {
-    const lines = textContent.split('\n');
-    const items = [];
 
-    for (const line of lines) {
-        if (line.includes('RECOGNIZED:') || line.includes('[RTDM][Timestamps]')) {
-            items.push(line.trim());
-        }
-    }
-
-    return items;
-}
-
-function updateTranslationsDisplay(items) {
-    const translationsDisplay = document.getElementById('translationsDisplay');
-    translationsDisplay.innerHTML = '';
-
-    const ul = document.createElement('ul');
-    items.forEach(item => {
-        const li = document.createElement('li');
-        li.textContent = item;
-        ul.appendChild(li);
-    });
-
-    translationsDisplay.appendChild(ul);
-}
 
 function createChart(metricsData) {
     const ctx = document.getElementById('metricsChart').getContext('2d');
