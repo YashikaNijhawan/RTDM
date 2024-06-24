@@ -76,8 +76,10 @@ function parseMetricsData(textContent) {
                 line.includes('Background_Noise Score') ||
                 line.includes('Speaker_Level Score') ||
                 line.includes('Isochrony Score') ||
+                line.includes('Absolute_Audio_Rate Score') ||
+                line.includes('Audio_Cutoff_Frames_Score') ||
                 line.includes('RT_Metric Score')||
-                line.includes('RECOGNIZED:')) {
+                line.includes('RECOGNIZED: FullRecognizedText=')) {
                 currentMetrics.metrics.push(line.trim());
             }
         }
@@ -127,6 +129,8 @@ function createChart(metricsData) {
     const srcScores = metricsData.map(m => extractMetricValue(m.metrics, 'SRC Score'));
     const backgroundNoiseScores = metricsData.map(m => extractMetricValue(m.metrics, 'Background_Noise Score'));
     const speakerLevelScores = metricsData.map(m => extractMetricValue(m.metrics, 'Speaker_Level Score'));
+    const AbsoluteAudioRateScores= metricsData.map(m => extractMetricValue(m.metrics, 'Absolute_Audio_Rate Score'));
+    const AbsoluteCutoffFramesScores = metricsData.map(m => extractMetricValue(m.metrics, 'Absolute_Cutoff_Frame Score'));
     const isochronyScores = metricsData.map(m => extractMetricValue(m.metrics, 'Isochrony Score'));
     const rtMetricScores = metricsData.map(m => extractMetricValue(m.metrics, 'RT_Metric Score'));
 
