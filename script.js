@@ -131,6 +131,7 @@ function createChart(metricsData) {
     const speakerLevelScores = metricsData.map(m => extractMetricValue(m.metrics, 'Speaker_Level Score'));
     const AbsoluteAudioRateScores= metricsData.map(m => extractMetricValue(m.metrics, 'Absolute_Audio_Rate Score'));
     const AbsoluteCutoffFramesScores = metricsData.map(m => extractMetricValue(m.metrics, 'Absolute_Cutoff_Frame Score'));
+
     const isochronyScores = metricsData.map(m => extractMetricValue(m.metrics, 'Isochrony Score'));
     const rtMetricScores = metricsData.map(m => extractMetricValue(m.metrics, 'RT_Metric Score'));
 
@@ -174,6 +175,20 @@ function createChart(metricsData) {
                 {
                     label: 'Isochrony Score',
                     data: isochronyScores,
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'Absolute_Audio_Rate Score',
+                    data: AbsoluteAudioRateScores,
+                    borderColor: 'rgba(123, 51, 123, 1)',
+                    backgroundColor: 'rgba(123, 51, 123, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'Absolute_Cutoff_Frame Score',
+                    data: AbsoluteCutoffFramesScores,
                     borderColor: 'rgba(153, 102, 255, 1)',
                     backgroundColor: 'rgba(153, 102, 255, 0.2)',
                     fill: false
