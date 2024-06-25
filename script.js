@@ -81,7 +81,8 @@ function parseMetricsData(textContent) {
                 line.includes('RT_Metric Score')||
                 line.includes('LIP SYNC ISSUE CAN BE THERE')||
                 line.includes('BG NOISE IS HIGH')||
-                line.includes('SPEED ISSUES CAN BE THERE')) {
+                line.includes('SPEED ISSUES CAN BE THERE') ||
+                line.includes('RECOGNIZED: FullRecognizedText=')) {
                 currentMetrics.metrics.push(line.trim());
             }
         }
