@@ -62,6 +62,9 @@ function parseMetricsData(textContent) {
     let currentMetrics = null;
 
     for (const line of lines) {
+        if(line.includes('RECOGNIZED: FullRecognizedText=')){
+            translations.push(line.trim());
+        }
         if (line.includes('[RTDM][Timestamps]')) {
             const matches = line.match(/\[(\d+\.\d+)sec - (\d+\.\d+)sec\]/);
             if (matches) {
@@ -78,10 +81,10 @@ function parseMetricsData(textContent) {
                 line.includes('Isochrony Score') ||
                 line.includes('Absolute_Audio_Rate Score') ||
                 line.includes('Audio_Cutoff_Frames_Score') ||
+                line.includes('RT_Metric Score') ||
                 line.includes('LIP SYNC ISSUE CAN BE THERE')||
                 line.includes('BG NOISE IS HIGH')||
-                line.includes('SPEED ISSUES CAN BE THERE') ||
-                line.includes('RECOGNIZED: FullRecognizedText=')) {
+                line.includes('SPEED ISSUES CAN BE THERE') ) {
                 currentMetrics.metrics.push(line.trim());
             }
         }
