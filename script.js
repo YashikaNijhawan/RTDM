@@ -12,7 +12,7 @@ async function handleMetricsFileSelect(event) {
 
     const reader = new FileReader();
 
-    reader.onload = async function(event) {
+    reader.onload = async function (event) {
         const textContent = event.target.result;
         metricsData = parseMetricsData(textContent);
         initializeVideoPlayer();
@@ -34,7 +34,6 @@ function handleRefreshButtonClick() {
     document.getElementById('fileInput').value = '';
     document.getElementById('videoFileInput').value = '';
     document.getElementById('metricsDisplay').innerHTML = '';
-    document.getElementById('translationsDisplay').innerHTML = '';
     const videoPlayer = document.getElementById('videoPlayer');
     videoPlayer.pause();
     videoPlayer.src = '';
@@ -49,7 +48,7 @@ function initializeVideoPlayer() {
     const videoPlayer = document.getElementById('videoPlayer');
     videoPlayer.src = URL.createObjectURL(videoFile);
 
-    videoPlayer.addEventListener('timeupdate', function() {
+    videoPlayer.addEventListener('timeupdate', function () {
         const currentTime = Math.floor(videoPlayer.currentTime);
         updateMetricsDisplay(metricsData, currentTime);
     });
@@ -58,33 +57,25 @@ function initializeVideoPlayer() {
 function parseMetricsData(textContent) {
     const lines = textContent.split('\n');
     const metrics = [];
-    const translations = [];
     let currentMetrics = null;
 
     for (const line of lines) {
-        if(line.includes('RECOGNIZED: FullRecognizedText=')){
-            translations.push(line.trim());
-        }
+        
         if (line.includes('[RTDM][Timestamps]')) {
             const matches = line.match(/\[(\d+\.\d+)sec - (\d+\.\d+)sec\]/);
             if (matches) {
                 const startSec = parseFloat(matches[1]);
                 const endSec = parseFloat(matches[2]);
-                currentMetrics = { startSec, endSec, metrics: []};
+                currentMetrics = { startSec, endSec, metrics: [] };
                 metrics.push(currentMetrics);
             }
         } else if (currentMetrics) {
             if (line.includes('Smoothness Score') ||
                 line.includes('SRC Score') ||
                 line.includes('Background_Noise Score') ||
-                line.includes('Speaker_Level Score') ||
+                // line.includes('Speaker_Level Score') ||
                 line.includes('Isochrony Score') ||
-                line.includes('Absolute_Audio_Rate Score') ||
-                line.includes('Audio_Cutoff_Frames_Score') ||
-                line.includes('RT_Metric Score') ||
-                line.includes('LIP SYNC ISSUE CAN BE THERE')||
-                line.includes('BG NOISE IS HIGH')||
-                line.includes('SPEED ISSUES CAN BE THERE') ) {
+                line.includes('RT_Metric Score')) {
                 currentMetrics.metrics.push(line.trim());
             }
         }
@@ -133,9 +124,9 @@ function createChart(metricsData) {
     const smoothnessScores = metricsData.map(m => extractMetricValue(m.metrics, 'Smoothness Score'));
     const srcScores = metricsData.map(m => extractMetricValue(m.metrics, 'SRC Score'));
     const backgroundNoiseScores = metricsData.map(m => extractMetricValue(m.metrics, 'Background_Noise Score'));
-    const speakerLevelScores = metricsData.map(m => extractMetricValue(m.metrics, 'Speaker_Level Score'));
-    const AbsoluteAudioRateScores= metricsData.map(m => extractMetricValue(m.metrics, 'Absolute_Audio_Rate Score'));
-    const AbsoluteCutoffFramesScores = metricsData.map(m => extractMetricValue(m.metrics, 'Absolute_Cutoff_Frame Score'));
+    // const speakerLevelScores = metricsData.map(m => extractMetricValue(m.metrics, 'Speaker_Level Score'));
+    // const AbsoluteAudioRateScores = metricsData.map(m => extractMetricValue(m.metrics, 'Absolute_Audio_Rate Score'));
+    // const AbsoluteCutoffFramesScores = metricsData.map(m => extractMetricValue(m.metrics, 'Absolute_Cutoff_Frame Score'));
 
     const isochronyScores = metricsData.map(m => extractMetricValue(m.metrics, 'Isochrony Score'));
     const rtMetricScores = metricsData.map(m => extractMetricValue(m.metrics, 'RT_Metric Score'));
@@ -165,79 +156,4 @@ function createChart(metricsData) {
                 },
                 {
                     label: 'Background_Noise Score',
-                    data: backgroundNoiseScores,
-                    borderColor: 'rgba(255, 206, 86, 1)',
-                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                    fill: false
-                },
-                {
-                    label: 'Speaker_Level Score',
-                    data: speakerLevelScores,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    fill: false
-                },
-                {
-                    label: 'Isochrony Score',
-                    data: isochronyScores,
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                    fill: false
-                },
-                {
-                    label: 'Absolute_Audio_Rate Score',
-                    data: AbsoluteAudioRateScores,
-                    borderColor: 'rgba(123, 51, 123, 1)',
-                    backgroundColor: 'rgba(123, 51, 123, 0.2)',
-                    fill: false
-                },
-                {
-                    label: 'Absolute_Cutoff_Frame Score',
-                    data: AbsoluteCutoffFramesScores,
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
-                    fill: false
-                },
-                {
-                    label: 'RT_Metric Score',
-                    data: rtMetricScores,
-                    borderColor: 'rgba(255, 159, 64, 1)',
-                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
-                    fill: false
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                x: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Timestamp (sec)'
-                    }
-                },
-                y: {
-                    display: true,
-                    title: {
-                        display: true,
-                        text: 'Score'
-                    },
-                    suggestedMin: 0,
-                    suggestedMax: 1
-                }
-            }
-        }
-    });
-}
-
-function extractMetricValue(metrics, metricName) {
-    const metric = metrics.find(m => m.includes(metricName));
-    if (metric) {
-        const matches = metric.match(/Score:\s*(-?\d+(\.\d+)?)/i);
-        if (matches) {
-            return parseFloat(matches[1]);
-        }
-    }
-    return null;
-}
+                    data:
