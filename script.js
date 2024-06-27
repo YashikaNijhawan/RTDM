@@ -156,4 +156,58 @@ function createChart(metricsData) {
                 },
                 {
                     label: 'Background_Noise Score',
-                    data:
+                    data: backgroundNoiseScores,
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'Isochrony Score',
+                    data: isochronyScores,
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'RT_Metric Score',
+                    data: rtMetricScores,
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Timestamp (sec)'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Score'
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 1
+                }
+            }
+        }
+    });
+}
+
+function extractMetricValue(metrics, metricName) {
+    const metric = metrics.find(m => m.includes(metricName));
+    if (metric) {
+        const matches = metric.match(/Score:\s*(-?\d+(\.\d+)?)/i);
+        if (matches) {
+            return parseFloat(matches[1]);
+        }
+    }
+    return null;
+}
