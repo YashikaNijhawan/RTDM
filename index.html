@@ -11,13 +11,18 @@
     <div class="container">
         <h1>Real Time Dubbing Metrics</h1>
         <div class="file-controls">
-            <input type="file" id="videoFileInput" accept=".mp4" />
-            <label for="videoFileInput" class="video-label">Choose Video</label>
+            <input type="file" id="videoFileInput1" accept=".mp4" />
+            <label for="videoFileInput1" class="video-label">Choose Original Video</label>
+            <input type="file" id="videoFileInput2" accept=".mp4" />
+            <label for="videoFileInput2" class="video-label">Choose Translated Video</label>
             <input type="file" id="fileInput" accept=".txt" />
             <label for="fileInput" class="file-label">Choose Log File</label>
             <button id="refreshButton" class="refresh-button">Refresh</button>
         </div>
-        <video id="videoPlayer" class="video-player" controls></video>
+        <div class="video-players">
+            <video id="videoPlayer1" class="video-player" controls></video>
+            <video id="videoPlayer2" class="video-player" controls></video>
+        </div>
         <div id="metricsDisplay" class="metrics-display"></div>
         <canvas id="metricsChart" class="metrics-chart"></canvas>
     </div>
