@@ -142,4 +142,87 @@ function createChart(metricsData) {
     const labels = metricsData.map(m => `${m.startSec}-${m.endSec} sec`);
     const smoothnessScores = metricsData.map(m => extractMetricValue(m.metrics, 'Smoothness Score'));
     const srcScores = metricsData.map(m => extractMetricValue(m.metrics, 'SRC Score'));
-    const backgroundNoiseScores = metricsData.map(m => extractMetricValue(m.metrics
+    const backgroundNoiseScores = metricsData.map(m => extractMetricValue(m.metrics, 'Background_Noise Score'));
+    const isochronyScores = metricsData.map(m => extractMetricValue(m.metrics, 'Isochrony Score'));
+    const rtMetricScores = metricsData.map(m => extractMetricValue(m.metrics, 'RT_Metric Score'));
+
+    if (chart) {
+        chart.destroy();
+    }
+
+    chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Smoothness Score',
+                    data: smoothnessScores,
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'SRC Score',
+                    data: srcScores,
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'Background_Noise Score',
+                    data: backgroundNoiseScores,
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'Isochrony Score',
+                    data: isochronyScores,
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                    fill: false
+                },
+                {
+                    label: 'RT_Metric Score',
+                    data: rtMetricScores,
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                    fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Timestamp (sec)'
+                    }
+                },
+                y: {
+                    display: true,
+                    title: {
+                        display: true,
+                        text: 'Score'
+                    },
+                    suggestedMin: 0,
+                    suggestedMax: 1
+                }
+            }
+        }
+    });
+}
+
+function extractMetricValue(metrics, metricName) {
+    const metric = metrics.find(m => m.includes(metricName));
+    if (metric) {
+        const matches = metric.match(/Score:\s*(-?\d+(\.\d+)?)/i);
+        if (matches) {
+            return parseFloat(matches[1]);
+        }
+    }
+    return null;
+}
