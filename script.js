@@ -1,9 +1,11 @@
 document.getElementById('fileInput').addEventListener('change', handleMetricsFileSelect, false);
-document.getElementById('videoFileInput').addEventListener('change', handleVideoFileSelect, false);
+document.getElementById('videoFileInput1').addEventListener('change', handleVideoFileSelect1, false);
+document.getElementById('videoFileInput2').addEventListener('change', handleVideoFileSelect2, false);
 document.getElementById('refreshButton').addEventListener('click', handleRefreshButtonClick);
 
 let metricsData = null;
-let videoFile = null;
+let videoFile1 = null;
+let videoFile2 = null;
 let chart = null;
 
 async function handleMetricsFileSelect(event) {
@@ -15,62 +17,78 @@ async function handleMetricsFileSelect(event) {
     reader.onload = async function(event) {
         const textContent = event.target.result;
         metricsData = parseMetricsData(textContent);
-        initializeVideoPlayer();
+        initializeVideoPlayers();
         createChart(metricsData);
     };
 
     reader.readAsText(file);
 }
 
-function handleVideoFileSelect(event) {
-    videoFile = event.target.files[0];
-    initializeVideoPlayer();
+function handleVideoFileSelect1(event) {
+    videoFile1 = event.target.files[0];
+    initializeVideoPlayers();
+}
+
+function handleVideoFileSelect2(event) {
+    videoFile2 = event.target.files[0];
+    initializeVideoPlayers();
 }
 
 function handleRefreshButtonClick() {
     metricsData = null;
-    videoFile = null;
-    translations = null;
+    videoFile1 = null;
+    videoFile2 = null;
     document.getElementById('fileInput').value = '';
-    document.getElementById('videoFileInput').value = '';
+    document.getElementById('videoFileInput1').value = '';
+    document.getElementById('videoFileInput2').value = '';
     document.getElementById('metricsDisplay').innerHTML = '';
-    document.getElementById('translationsDisplay').innerHTML = '';
-    const videoPlayer = document.getElementById('videoPlayer');
-    videoPlayer.pause();
-    videoPlayer.src = '';
+    const videoPlayer1 = document.getElementById('videoPlayer1');
+    const videoPlayer2 = document.getElementById('videoPlayer2');
+    videoPlayer1.pause();
+    videoPlayer2.pause();
+    videoPlayer1.src = '';
+    videoPlayer2.src = '';
     if (chart) {
         chart.destroy();
     }
 }
 
-function initializeVideoPlayer() {
-    if (!metricsData || !videoFile) return;
+function initializeVideoPlayers() {
+    if (!metricsData || (!videoFile1 && !videoFile2)) return;
 
-    const videoPlayer = document.getElementById('videoPlayer');
-    videoPlayer.src = URL.createObjectURL(videoFile);
+    if (videoFile1) {
+        const videoPlayer1 = document.getElementById('videoPlayer1');
+        videoPlayer1.src = URL.createObjectURL(videoFile1);
 
-    videoPlayer.addEventListener('timeupdate', function() {
-        const currentTime = Math.floor(videoPlayer.currentTime);
-        updateMetricsDisplay(metricsData, currentTime);
-    });
+        videoPlayer1.addEventListener('timeupdate', function() {
+            const currentTime = Math.floor(videoPlayer1.currentTime);
+            updateMetricsDisplay(metricsData, currentTime);
+        });
+    }
+
+    if (videoFile2) {
+        const videoPlayer2 = document.getElementById('videoPlayer2');
+        videoPlayer2.src = URL.createObjectURL(videoFile2);
+
+        videoPlayer2.addEventListener('timeupdate', function() {
+            const currentTime = Math.floor(videoPlayer2.currentTime);
+            updateMetricsDisplay(metricsData, currentTime);
+        });
+    }
 }
 
 function parseMetricsData(textContent) {
     const lines = textContent.split('\n');
     const metrics = [];
-    const translations = [];
     let currentMetrics = null;
 
     for (const line of lines) {
-        if(line.includes('RECOGNIZED: FullRecognizedText=')){
-            translations.push(line.trim());
-        }
         if (line.includes('[RTDM][Timestamps]')) {
             const matches = line.match(/\[(\d+\.\d+)sec - (\d+\.\d+)sec\]/);
             if (matches) {
                 const startSec = parseFloat(matches[1]);
                 const endSec = parseFloat(matches[2]);
-                currentMetrics = { startSec, endSec, metrics: []};
+                currentMetrics = { startSec, endSec, metrics: [] };
                 metrics.push(currentMetrics);
             }
         } else if (currentMetrics) {
@@ -78,7 +96,7 @@ function parseMetricsData(textContent) {
                 line.includes('SRC Score') ||
                 line.includes('Background_Noise Score') ||
                 line.includes('Isochrony Score') ||
-                line.includes('RT_Metric Score') ) {
+                line.includes('RT_Metric Score')) {
                 currentMetrics.metrics.push(line.trim());
             }
         }
@@ -119,8 +137,6 @@ function findTimestamp(metrics, currentTime) {
     return null;
 }
 
-
-
 function createChart(metricsData) {
     const ctx = document.getElementById('metricsChart').getContext('2d');
     const labels = metricsData.map(m => `${m.startSec}-${m.endSec} sec`);
@@ -160,7 +176,6 @@ function createChart(metricsData) {
                     backgroundColor: 'rgba(255, 206, 86, 0.2)',
                     fill: false
                 },
-               
                 {
                     label: 'Isochrony Score',
                     data: isochronyScores,
@@ -168,7 +183,6 @@ function createChart(metricsData) {
                     backgroundColor: 'rgba(153, 102, 255, 0.2)',
                     fill: false
                 },
-                
                 {
                     label: 'RT_Metric Score',
                     data: rtMetricScores,
